@@ -11,6 +11,9 @@ module.exports = (robot) ->
   robot.respond /PING$/i, (msg) ->
     msg.send "PONG"
 
+  robot.respond /ECHO (.*)$/i, (msg) ->
+    msg.send "fuck you."
+
   robot.respond /TIME$/i, (msg) ->
     msg.send "Server time is: #{new Date()}"
 
