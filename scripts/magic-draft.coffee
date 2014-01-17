@@ -1,8 +1,8 @@
 # Description:
-#   Make fun of other people.
+#   Run magic drafts through hubot, persists user statistics over time.
 #
 # Commands:
-#   hubot mock <person> - make fun of the specified person
+#   hubot room - show the current room, for testing purposes.
 
 module.exports = (robot) ->
 	robot.respond /room$/i, (msg) ->
