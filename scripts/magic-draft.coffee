@@ -5,7 +5,8 @@
 #   hubot new draft - Start a draft
 #	hubot end draft - End the current draft and output final match statistics
 #	hubot draft status - Display information about the current draft
-#	hubot signup user? - Signup the specified user for the draft, signs up the 'sending' user if none is specified
+#	hubot signup user colors keywords... - Colors [BUWGRbuwgr], Keywords [aggro, control, ... etc], ex: 'signup Eric GW aggro angels'
+
 
 magicRoom = "528f6fc86efdfa5420b8c1fd@conference.orgspan.com"
 
@@ -45,12 +46,15 @@ outputDraftStatistics = (robot, msg) ->
 	console.log robot.brain.get 'previousMagicDrafts'
 
 signupUser = (robot, msg) ->
-	user = msg.match[1] or msg.envelope.user.name
 	currentDraft = robot.brain.get 'currentMagicDraft'
 	if not currentDraft
 		msg.send "There is no draft running."
 	else
-		currentDraft.players.push user
+		user = msg.match[1]
+		colors = msg.match[2]
+		tags = (tag for tag in msg.match[3].split(' ') when tag)
+
+		currentDraft.players.push {user, colors, tags}
 		robot.brain.set 'currentMagicDraft', currentDraft
 
 module.exports = (robot) ->
@@ -66,7 +70,7 @@ module.exports = (robot) ->
 		if isMagicRoom msg
 			outputDraftStatistics robot, msg
 
-	robot.respond /signup ?([\w@\.]*)$/i, (msg) ->
+	robot.respond /signup (\w+) ([BUWGRbuwgr]+) ?(.*)$/i, (msg) ->
 		if isMagicRoom msg
 			signupUser robot, msg
 
