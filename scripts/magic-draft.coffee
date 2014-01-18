@@ -26,11 +26,12 @@ newDraft = (robot, msg) ->
 		msg.send "New Draft created and ready for entrants."
 
 endDraft = (robot, msg) ->
-	outputDraftStatistics robot, msg
-
 	if not robot.brain.get 'currentMagicDraft'
 		msg.send "There is no draft running."
 	else
+		msg.send "Draft wrapup:"
+		outputDraftStatistics robot, msg
+
 		currentDraft = robot.brain.get 'currentMagicDraft'
 		previousDrafts = robot.brain.get('previousMagicDrafts') or []
 		previousDrafts.push currentDraft
@@ -54,3 +55,6 @@ module.exports = (robot) ->
 	robot.respond /draft status$/i, (msg) ->
 		if isMagicRoom msg
 			outputDraftStatistics robot, msg
+
+	robot.respond /whoami$/i, (msg) ->
+		msg.send msg.envelope.user.name
