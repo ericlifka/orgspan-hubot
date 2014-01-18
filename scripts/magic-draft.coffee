@@ -23,6 +23,14 @@ module.exports = (robot) ->
 	saveMagicPlayers = (players) ->
 		robot.brain.set 'magicPlayers', players
 
+	getCurrentDraft = () ->
+		draft = robot.brain.get 'currentMagicDraft'
+		if not draft
+			msg.send "There is no draft running."
+			false
+		else
+			draft
+
 	newDraft = (msg) ->
 		if robot.brain.get 'currentMagicDraft'
 			msg.send "Current draft hasn't ended, use 'hubot end draft' to finish the current draft."
@@ -36,13 +44,10 @@ module.exports = (robot) ->
 			msg.send "New Draft created and ready for entrants."
 
 	endDraft = (msg) ->
-		if not robot.brain.get 'currentMagicDraft'
-			msg.send "There is no draft running."
-		else
+		if currentDraft = getCurrentDraft()
 			msg.send "Draft wrapup:"
 			outputDraftStatistics msg
 
-			currentDraft = robot.brain.get 'currentMagicDraft'
 			previousDrafts = robot.brain.get('previousMagicDrafts') or []
 			previousDrafts.push currentDraft
 
@@ -54,30 +59,40 @@ module.exports = (robot) ->
 		console.log robot.brain.get 'previousMagicDrafts'
 
 	signupUser = (msg) ->
-		currentDraft = robot.brain.get 'currentMagicDraft'
-		if not currentDraft
-			msg.send "There is no draft running."
-			return
-		
-		user = msg.match[1]
-		colors = msg.match[2]
-		tags = (tag for tag in msg.match[3].split(' ') when tag)
+		if currentDraft = getCurrentDraft()
+			user = msg.match[1]
+			colors = msg.match[2]
+			tags = (tag for tag in msg.match[3].split(' ') when tag)
 
-		currentDraft.players.push {user, colors, tags}
-		robot.brain.set 'currentMagicDraft', currentDraft
+			currentDraft.players.push {user, colors, tags}
+			robot.brain.set 'currentMagicDraft', currentDraft
 
-		players = getMagicPlayers()
-		if not players[user]
-			players[user] = {
-				name: user
-				decks: []
-				drafts: 0
-				wins: 0
-				losses: 0
-				ties: 0
-			}
-			saveMagicPlayers players
+			players = getMagicPlayers()
+			if not players[user]
+				players[user] = {
+					decks: []
+					drafts: 0
+					wins: 0
+					losses: 0
+					ties: 0
+				}
+				saveMagicPlayers players
 
+	listAllPlayers = (msg) ->
+		msg.send(name) for name, description of getMagicPlayers()
+
+	listCurrentPlayers = (msg) ->
+		if currentDraft = getCurrentDraft()
+			msg.send(player.user) for player in currentDraft.players
+
+	reportResult = (msg) ->
+		if currentDraft = getCurrentDraft()
+			user1 = msg.match[1]
+			user2 = msg.match[2]
+			wins = msg.match[3]
+			losses = msg.match[4]
+			ties = msg.match[5] or 0
+			#calculate and record results
 
 	robot.respond /draft new$/i, (msg) ->
 		if isMagicRoom msg
@@ -96,7 +111,13 @@ module.exports = (robot) ->
 			signupUser msg
 
 	robot.respond /draft list all players$/i, (msg) ->
+		if isMagicRoom msg
+			listAllPlayers msg
 
 	robot.respond /draft list current players$/i, (msg) ->
+		if isMagicRoom msg
+			listCurrentPlayers msg
 
 	robot.respond /draft report result (\w+) vs (\w+) (\d)-(\d)-?(\d?)$/i, (msg) ->
+		if isMagicRoom msg
+			reportResult msg
