@@ -4,6 +4,7 @@
 # Commands:
 #   hubot new draft - Start a draft
 #	hubot end draft - End the current draft and output final match statistics
+#	hubot draft status - Display information about the current draft
 
 magicRoom = "528f6fc86efdfa5420b8c1fd@conference.orgspan.com"
 
