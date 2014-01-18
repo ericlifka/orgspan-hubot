@@ -21,7 +21,6 @@ newDraft = (robot, msg) ->
 		robot.brain.set 'currentMagicDraft', {
 			players: []
 			results: []
-			decks: []
 			date: new Date().toISOString()
 		}
 
